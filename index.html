@@ -77,90 +77,176 @@
     </div>
   </div>
   <script>
-    const questions=[{category:"Introduction to Biology",text:"What is the definition of science according to the text?",options:["The study of living things only","The investigation of the natural universe","The process of making observations","The art of asking questions"],answer:1},{category:"Introduction to Biology",text:"What is biology?",options:["The branch of science that studies living things and their environments","The study of chemical reactions in laboratories","The investigation of non-living matter","The process of conducting experiments"],answer:0},{category:"Introduction to Biology",text:"Which type of question can science answer?",options:["Questions about personal beliefs and ethics","Questions about how people should feel","Empirical questions requiring quantitative and qualitative data","Questions about moral responsibility"],answer:2},{category:"Introduction to Biology",text:"What is the difference between quantitative and qualitative data?",options:["Quantitative is measurable, qualitative cannot be measured but can change","Quantitative is about opinions, qualitative is about facts","Quantitative is visual, qualitative is numerical","There is no difference between them"],answer:0},{category:"Introduction to Biology",text:"Why is skepticism important in science?",options:["It makes scientists doubt everything permanently","It helps scientists accept statements as facts only when supported by evidence","It prevents scientists from doing experiments","It makes science more complicated than necessary"],answer:1},{category:"Introduction to Biochemistry",text:"What are the main elements that make up living organisms?",options:["Carbon, Hydrogen, Oxygen, Nitrogen, Phosphorus, Sulfur","Iron, Copper, Zinc, Magnesium","Sodium, Potassium, Calcium, Chlorine","Gold, Silver, Platinum, Mercury"],answer:0},{category:"Introduction to Biochemistry",text:"What is the most important property of water for living organisms?",options:["It has a neutral pH","It is a polar molecule that can dissolve many substances","It freezes at 0°C","It has no taste or smell"],answer:1},{category:"Introduction to Biochemistry",text:"Which biomolecule serves as the primary energy source for cells?",options:["Proteins","Lipids","Carbohydrates","Nucleic acids"],answer:2},{category:"Introduction to Biochemistry",text:"What is the basic building block of proteins?",options:["Nucleotides","Amino acids","Fatty acids","Monosaccharides"],answer:1},{category:"Introduction to Biochemistry",text:"Which type of bond holds the two strands of DNA together?",options:["Ionic bonds","Covalent bonds","Hydrogen bonds","Metallic bonds"],answer:2},{category:"Cells: The Basic Units of Life",text:"What is the cell theory?",options:["All living things are made of cells, cells are the basic unit of life, all cells come from other cells","Cells can be created from non-living matter","Only plants and animals have cells","Cells are not important for life"],answer:0},{category:"Cells: The Basic Units of Life",text:"What is the main difference between prokaryotic and eukaryotic cells?",options:["Size difference only","Prokaryotes lack a membrane-bound nucleus, eukaryotes have one","Prokaryotes are plants, eukaryotes are animals","Prokaryotes are larger than eukaryotes"],answer:1},{category:"Cells: The Basic Units of Life",text:"Which organelle is responsible for cellular respiration?",options:["Nucleus","Ribosomes","Mitochondria","Endoplasmic reticulum"],answer:2},{category:"Cells: The Basic Units of Life",text:"What structure controls what enters and exits the cell?",options:["Cell wall","Cell membrane","Cytoplasm","Nucleus"],answer:1},{category:"Cells: The Basic Units of Life",text:"Which organelle is found in plant cells but not in animal cells?",options:["Mitochondria","Ribosomes","Chloroplasts","Endoplasmic reticulum"],answer:2}];
-    let currentQuestion=0,score=0,isAnswering=true,feedbackTimeout,showingFeedback=false;
-    const colors=['red','blue','yellow','orange'];
-    function loadQuestion(){
-      if(currentQuestion>=questions.length){showFinalResults();return}
-      const q=questions[currentQuestion];
-      document.getElementById('questionNumber').textContent=`Question ${currentQuestion+1}`;
-      document.getElementById('questionText').textContent=q.text;
-      document.getElementById('scoreDisplay').textContent=`Score: ${score}/${questions.length}`;
-      document.getElementById('categoryDisplay').textContent=q.category;
-      document.getElementById('progressFill').style.width=((currentQuestion)/questions.length)*100+'%';
-      const optionsContainer=document.getElementById('optionsContainer');
-      optionsContainer.innerHTML='';
-      q.options.forEach((optionText,index)=>{
-        const div=document.createElement('div');
-        div.className=`option ${colors[index]}`;
-        div.setAttribute('data-key',index+1);
-        div.textContent=optionText;
-        div.onclick=()=>selectOption(index,div);
+    const originalQuestions=[{category:"Introduction to Biology",text:"What is the definition of science according to the text?",options:["The study of living things only","The investigation of the natural universe","The process of making observations","The art of asking questions"],answer:1},{category:"Introduction to Biology",text:"What is biology?",options:["The branch of science that studies living things and their environments","The study of chemical reactions in laboratories","The investigation of non-living matter","The process of conducting experiments"],answer:0},{category:"Introduction to Biology",text:"Which type of question can science answer?",options:["Questions about personal beliefs and ethics","Questions about how people should feel","Empirical questions requiring quantitative and qualitative data","Questions about moral responsibility"],answer:2},{category:"Introduction to Biology",text:"What is the difference between quantitative and qualitative data?",options:["Quantitative is measurable, qualitative cannot be measured but can change","Quantitative is about opinions, qualitative is about facts","Quantitative is visual, qualitative is numerical","There is no difference between them"],answer:0},{category:"Introduction to Biology",text:"Why is skepticism important in science?",options:["It makes scientists doubt everything permanently","It helps scientists accept statements as facts only when supported by evidence","It prevents scientists from doing experiments","It makes science more complicated than necessary"],answer:1},{category:"Introduction to Biochemistry",text:"What are the main elements that make up living organisms?",options:["Carbon, Hydrogen, Oxygen, Nitrogen, Phosphorus, Sulfur","Iron, Copper, Zinc, Magnesium","Sodium, Potassium, Calcium, Chlorine","Gold, Silver, Platinum, Mercury"],answer:0},{category:"Introduction to Biochemistry",text:"What is the most important property of water for living organisms?",options:["It has a neutral pH","It is a polar molecule that can dissolve many substances","It freezes at 0°C","It has no taste or smell"],answer:1},{category:"Introduction to Biochemistry",text:"Which biomolecule serves as the primary energy source for cells?",options:["Proteins","Lipids","Carbohydrates","Nucleic acids"],answer:2},{category:"Introduction to Biochemistry",text:"What is the basic building block of proteins?",options:["Nucleotides","Amino acids","Fatty acids","Monosaccharides"],answer:1},{category:"Introduction to Biochemistry",text:"Which type of bond holds the two strands of DNA together?",options:["Ionic bonds","Covalent bonds","Hydrogen bonds","Metallic bonds"],answer:2},{category:"Cells: The Basic Units of Life",text:"What is the cell theory?",options:["All living things are made of cells, cells are the basic unit of life, all cells come from other cells","Cells can be created from non-living matter","Only plants and animals have cells","Cells are not important for life"],answer:0},{category:"Cells: The Basic Units of Life",text:"What is the main difference between prokaryotic and eukaryotic cells?",options:["Size difference only","Prokaryotes lack a membrane-bound nucleus, eukaryotes have one","Prokaryotes are plants, eukaryotes are animals","Prokaryotes are larger than eukaryotes"],answer:1},{category:"Cells: The Basic Units of Life",text:"Which organelle is responsible for cellular respiration?",options:["Nucleus","Ribosomes","Mitochondria","Endoplasmic reticulum"],answer:2},{category:"Cells: The Basic Units of Life",text:"What structure controls what enters and exits the cell?",options:["Cell wall","Cell membrane","Cytoplasm","Nucleus"],answer:1},{category:"Cells: The Basic Units of Life",text:"Which organelle is found in plant cells but not in animal cells?",options:["Mitochondria","Ribosomes","Chloroplasts","Endoplasmic reticulum"],answer:2}];
+    
+    let questions = [];
+    let currentQuestion = 0, score = 0, isAnswering = true, feedbackTimeout, showingFeedback = false;
+    const colors = ['red', 'blue', 'yellow', 'orange'];
+
+    // Shuffle function using Fisher-Yates algorithm
+    function shuffle(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    // Randomize options for a question while tracking correct answer
+    function randomizeOptions(question) {
+      const correctText = question.options[question.answer];
+      const shuffledOptions = shuffle(question.options);
+      const newCorrectIndex = shuffledOptions.indexOf(correctText);
+      
+      return {
+        ...question,
+        options: shuffledOptions,
+        answer: newCorrectIndex
+      };
+    }
+
+    // Initialize quiz with randomized questions and answers
+    function initializeQuiz() {
+      // First randomize the order of questions
+      const shuffledQuestions = shuffle(originalQuestions);
+      
+      // Then randomize the options within each question
+      questions = shuffledQuestions.map(q => randomizeOptions(q));
+      
+      currentQuestion = 0;
+      score = 0;
+    }
+
+    function loadQuestion() {
+      if (currentQuestion >= questions.length) {
+        showFinalResults();
+        return;
+      }
+
+      const q = questions[currentQuestion];
+      document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1}`;
+      document.getElementById('questionText').textContent = q.text;
+      document.getElementById('scoreDisplay').textContent = `Score: ${score}/${questions.length}`;
+      document.getElementById('categoryDisplay').textContent = q.category;
+      document.getElementById('progressFill').style.width = ((currentQuestion) / questions.length) * 100 + '%';
+
+      const optionsContainer = document.getElementById('optionsContainer');
+      optionsContainer.innerHTML = '';
+
+      q.options.forEach((optionText, index) => {
+        const div = document.createElement('div');
+        div.className = `option ${colors[index]}`;
+        div.setAttribute('data-key', index + 1);
+        div.textContent = optionText;
+        div.onclick = () => selectOption(index, div);
         optionsContainer.appendChild(div);
       });
-      isAnswering=true;
+
+      isAnswering = true;
     }
-    function selectOption(selectedIndex,selectedElement){
-      if(!isAnswering)return;
-      isAnswering=false;
-      const q=questions[currentQuestion];
-      const isCorrect=selectedIndex===q.answer;
-      document.querySelectorAll('.option').forEach(opt=>opt.classList.add('disabled'));
-      if(isCorrect){selectedElement.classList.add('correct');score++}else{selectedElement.classList.add('incorrect');document.querySelectorAll('.option')[q.answer].classList.add('correct')}
-      setTimeout(()=>showFeedback(isCorrect,q),800);
+
+    function selectOption(selectedIndex, selectedElement) {
+      if (!isAnswering) return;
+      isAnswering = false;
+
+      const q = questions[currentQuestion];
+      const isCorrect = selectedIndex === q.answer;
+
+      document.querySelectorAll('.option').forEach(opt => opt.classList.add('disabled'));
+
+      if (isCorrect) {
+        selectedElement.classList.add('correct');
+        score++;
+      } else {
+        selectedElement.classList.add('incorrect');
+        document.querySelectorAll('.option')[q.answer].classList.add('correct');
+      }
+
+      setTimeout(() => showFeedback(isCorrect, q), 800);
     }
-    function showFeedback(isCorrect,question){
-      const overlay=document.getElementById('feedbackOverlay');
-      const icon=document.getElementById('feedbackIcon');
-      const text=document.getElementById('feedbackText');
-      const correctAnswer=document.getElementById('correctAnswer');
-      const skipHint=document.getElementById('skipHint');
-      showingFeedback=true;
-      overlay.className=`feedback-overlay ${isCorrect?'correct':'incorrect'}`;
-      if(isCorrect){icon.textContent='🎉';text.textContent='Correct!';correctAnswer.style.display='none';skipHint.style.display='none'}else{icon.textContent='❌';text.textContent='Incorrect!';correctAnswer.textContent=question.options[question.answer];correctAnswer.style.display='block';skipHint.style.display='block'}
-      overlay.style.display='flex';
-      feedbackTimeout=setTimeout(()=>nextQuestion(),isCorrect?2000:6000);
+
+    function showFeedback(isCorrect, question) {
+      const overlay = document.getElementById('feedbackOverlay');
+      const icon = document.getElementById('feedbackIcon');
+      const text = document.getElementById('feedbackText');
+      const correctAnswer = document.getElementById('correctAnswer');
+      const skipHint = document.getElementById('skipHint');
+
+      showingFeedback = true;
+      overlay.className = `feedback-overlay ${isCorrect ? 'correct' : 'incorrect'}`;
+
+      if (isCorrect) {
+        icon.textContent = '🎉';
+        text.textContent = 'Correct!';
+        correctAnswer.style.display = 'none';
+        skipHint.style.display = 'none';
+      } else {
+        icon.textContent = '❌';
+        text.textContent = 'Incorrect!';
+        correctAnswer.textContent = question.options[question.answer];
+        correctAnswer.style.display = 'block';
+        skipHint.style.display = 'block';
+      }
+
+      overlay.style.display = 'flex';
+      feedbackTimeout = setTimeout(() => nextQuestion(), isCorrect ? 2000 : 6000);
     }
-    function nextQuestion(){
-      if(feedbackTimeout)clearTimeout(feedbackTimeout);
-      showingFeedback=false;
-      document.getElementById('feedbackOverlay').style.display='none';
+
+    function nextQuestion() {
+      if (feedbackTimeout) clearTimeout(feedbackTimeout);
+      showingFeedback = false;
+      document.getElementById('feedbackOverlay').style.display = 'none';
       currentQuestion++;
       loadQuestion();
     }
-    function showFinalResults(){
-      document.getElementById('quizContent').style.display='none';
-      document.getElementById('questionNumber').style.display='none';
-      document.getElementById('scoreDisplay').style.display='none';
-      document.getElementById('categoryDisplay').style.display='none';
-      const percent=Math.round((score/questions.length)*100);
-      let grade=percent>=90?'A':percent>=80?'B':percent>=70?'C':percent>=60?'D':'F';
-      document.getElementById('finalScore').textContent=`${score}/${questions.length} (${percent}%)`;
-      const gradeDisplay=document.getElementById('gradeDisplay');
-      gradeDisplay.textContent=`Grade: ${grade}`;
-      gradeDisplay.className=`grade-display grade-${grade}`;
-      document.getElementById('finalResults').style.display='block';
-      document.getElementById('progressFill').style.width='100%';
+
+    function showFinalResults() {
+      document.getElementById('quizContent').style.display = 'none';
+      document.getElementById('questionNumber').style.display = 'none';
+      document.getElementById('scoreDisplay').style.display = 'none';
+      document.getElementById('categoryDisplay').style.display = 'none';
+
+      const percent = Math.round((score / questions.length) * 100);
+      let grade = percent >= 90 ? 'A' : percent >= 80 ? 'B' : percent >= 70 ? 'C' : percent >= 60 ? 'D' : 'F';
+
+      document.getElementById('finalScore').textContent = `${score}/${questions.length} (${percent}%)`;
+      const gradeDisplay = document.getElementById('gradeDisplay');
+      gradeDisplay.textContent = `Grade: ${grade}`;
+      gradeDisplay.className = `grade-display grade-${grade}`;
+      document.getElementById('finalResults').style.display = 'block';
+      document.getElementById('progressFill').style.width = '100%';
     }
-    function restartQuiz(){
-      currentQuestion=0;score=0;
-      document.getElementById('quizContent').style.display='block';
-      document.getElementById('questionNumber').style.display='block';
-      document.getElementById('scoreDisplay').style.display='block';
-      document.getElementById('categoryDisplay').style.display='block';
-      document.getElementById('finalResults').style.display='none';
+
+    function restartQuiz() {
+      document.getElementById('quizContent').style.display = 'block';
+      document.getElementById('questionNumber').style.display = 'block';
+      document.getElementById('scoreDisplay').style.display = 'block';
+      document.getElementById('categoryDisplay').style.display = 'block';
+      document.getElementById('finalResults').style.display = 'none';
+      
+      // Re-randomize everything for a new game
+      initializeQuiz();
       loadQuestion();
     }
-    document.addEventListener('keydown',function(event){
-      const key=event.key;
-      if(key===' '&&showingFeedback){event.preventDefault();nextQuestion();return}
-      if(!isAnswering)return;
-      if(['1','2','3','4'].includes(key)){
-        const optionIndex=parseInt(key)-1;
-        const options=document.querySelectorAll('.option');
-        if(options[optionIndex])selectOption(optionIndex,options[optionIndex]);
+
+    document.addEventListener('keydown', function(event) {
+      const key = event.key;
+      if (key === ' ' && showingFeedback) {
+        event.preventDefault();
+        nextQuestion();
+        return;
+      }
+      if (!isAnswering) return;
+      if (['1', '2', '3', '4'].includes(key)) {
+        const optionIndex = parseInt(key) - 1;
+        const options = document.querySelectorAll('.option');
+        if (options[optionIndex]) selectOption(optionIndex, options[optionIndex]);
       }
     });
+
+    // Initialize and start the quiz
+    initializeQuiz();
     loadQuestion();
   </script>
 </body>
